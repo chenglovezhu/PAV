@@ -22,8 +22,8 @@ class GetPV:
     def __init__(self, data_file):
         self.base_url = "https://break.qyjgqjwj.com"
         self.proxies = {
-            "http": "http://127.0.0.1:7890",  # 本地代理地址
-            "https": "http://127.0.0.1:7890"
+            "http": "http://127.0.0.1:7897",  # 本地代理地址
+            "https": "http://127.0.0.1:7897"
             }
         self.headers = {
             "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36",
@@ -77,7 +77,7 @@ class GetPV:
         # 创建soup对象
         soup = BeautifulSoup(context, 'html.parser')
         # 获取文章标题
-        title = soup.find('div', id='post').find('article').find('h1').get_text(strip=True)
+        title = soup.find('div', id='post').find('article').find('h1').get_text(strip=True).replace("/", " ")
         m3u8_urls = []
         
         # 获取dplayer对象
@@ -127,6 +127,8 @@ if __name__ == "__main__":
     if os.path.exists("51CG/successful.txt"):
         # 读取已成功写入的数据
         data_list = read_successful()
+    else:
+        data_list = []
     
     # 创建对象  
     get_pv = GetPV("51CG/tmp.txt")
@@ -172,8 +174,9 @@ if __name__ == "__main__":
             download_key_file(key_url=key_url, save_dir=f"{save_dir}_{index}")
             print(f"开始下载ts文件, 请稍等...")
             download_files_parallel(ts_urls, save_dir=f"{save_dir}_{index}")
-            print(f"下载完成, 开始写入已成功写入的数据")
+            print(f"下载当前视频完成, 开始写入已成功写入的数据")
             
         # 写入已成功写入的数据
+        print(f"已下载当前文章的所有视频, 开始写入已成功下载文件的数据")
         write_successful(f"{url}")
         print(f"写入完成")
