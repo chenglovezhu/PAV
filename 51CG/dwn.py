@@ -2,9 +2,8 @@ import os
 import requests
 from multiprocessing import Pool
 from urllib.parse import urljoin
+from urllib.parse import urlparse
 from m3u8 import M3U8
-
-
 
 # 解析 m3u8 文件，获取所有 TS 文件和 key 文件的 URL
 def get_m3u8_data(m3u8_file_path):
@@ -42,19 +41,23 @@ def download_file(url, save_path):
 
 # 下载多个文件（通过多进程）
 def download_files_parallel(urls, save_dir):
+
     # 如果保存目录不存在，则创建目录
     if not os.path.exists(save_dir):
         os.makedirs(save_dir)
 
     # 使用 Pool 并行下载文件
     with Pool(processes=4) as pool:  # 设置进程数，通常 4 到 8 个进程是合理的
-        pool.starmap(download_file, [(url, os.path.join(save_dir, os.path.basename(url))) for url in urls])
+        pool.starmap(download_file, [(url, os.path.join(save_dir, os.path.basename(urlparse(url).path))) for url in urls])
 
 # 下载 key 文件
 def download_key_file(key_url, save_dir):
+    # 解析 URL，提取路径部分
+    path = urlparse(key_url).path
+
     # 如果key不为空，则下载key文件
     if key_url:
         # 获取key文件的保存路径 
-        key_file_path = os.path.join(save_dir, os.path.basename(key_url))
+        key_file_path = os.path.join(save_dir, os.path.basename(path))
         # 下载key文件
         download_file(key_url, key_file_path)
